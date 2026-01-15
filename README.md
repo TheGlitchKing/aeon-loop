@@ -1,6 +1,6 @@
 # Aeon Loop
 
-**Autonomous task execution for Claude Code.** Start a task, walk away, return to find it complete.
+**/claude /plugin for Autonomous task execution for Claude Code.** Start a task, walk away, return to find it complete.
 
 ## Features Table
 
