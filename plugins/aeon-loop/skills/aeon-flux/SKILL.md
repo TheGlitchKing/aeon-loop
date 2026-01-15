@@ -12,19 +12,77 @@ The complete workflow for taking a project from idea to implementation.
 ## Overview
 
 Aeon Flux guides users through:
-1. **Discovery** - Ask questions until 90% confident
-2. **PRD Creation** - Generate Product Requirements Document
-3. **Planning** - Create task plan with right-sized stories
-4. **Approval** - User reviews and approves plan
-5. **Execution Mode Choice** - Autonomous or collaborative
-6. **Implementation** - Execute until complete
-7. **Verification** - Check PRD for completeness
+1. **Exploration (Optional)** - Understand existing codebase first
+2. **Discovery** - Ask questions until 90% confident
+3. **PRD Creation** - Generate Product Requirements Document
+4. **Planning** - Create task plan with right-sized stories
+5. **Approval** - User reviews and approves plan
+6. **Execution Mode Choice** - Autonomous or collaborative
+7. **Implementation** - Execute until complete
+8. **Verification** - Check PRD for completeness
+
+---
+
+## Phase 0: Exploration (Optional)
+
+When the user runs `/aeon-flux`, first check if exploration would help:
+
+### Detect Existing Codebase
+
+Check if there's an existing project:
+```bash
+# Look for common project indicators
+ls package.json Cargo.toml pyproject.toml go.mod pom.xml *.csproj 2>/dev/null
+```
+
+### Offer Exploration
+
+If an existing codebase is detected:
+
+```
+I see this is an existing project. Would you like me to explore the codebase first?
+
+1. Yes, explore first
+   1.1. Full analysis (structure, patterns, architecture)
+   1.2. Quick overview (just structure and key files)
+
+2. No, skip exploration
+   2.1. I'm familiar with this codebase
+   2.2. This is a new/empty project
+```
+
+### If User Chooses Exploration
+
+Run the `/explore` skill internally:
+
+1. Launch parallel exploration agents (or quick overview)
+2. Generate exploration report
+3. Save to `.planning/exploration/report.md`
+4. Use findings to inform subsequent questions
+
+```
+Exploring the codebase...
+
+[Launch exploration agents]
+
+Here's what I found:
+[Brief summary]
+
+Full report saved to .planning/exploration/report.md
+
+Now let's discuss what you want to build...
+```
+
+### Skip Exploration If:
+- User says they're familiar with the codebase
+- This is a new/empty project
+- User explicitly wants to skip
 
 ---
 
 ## Phase 1: Discovery
 
-When the user runs `/aeon-flux` or describes a project idea:
+After exploration (or skipping it):
 
 ### Start the Conversation
 
@@ -36,6 +94,19 @@ Or if they already described it:
 
 ```
 I'd like to help you build [their idea]. Let me ask a few questions to make sure I understand what you need.
+```
+
+### Use Exploration Context
+
+If exploration was done, reference findings in questions:
+
+```
+Based on the codebase exploration, I see you're using [framework] with [patterns].
+
+1. Should this new feature follow the existing patterns?
+   1.1. Yes, match existing architecture
+   1.2. No, this needs a different approach
+   1.3. Let's discuss the tradeoffs
 ```
 
 ### Ask Clarifying Questions

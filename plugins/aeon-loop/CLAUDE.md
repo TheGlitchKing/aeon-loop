@@ -173,7 +173,8 @@ Current blocker: None
 
 | Command | Purpose |
 |---------|---------|
-| `/aeon-flux` | **Unified workflow** - PRD → Planning → Approval → Execution |
+| `/aeon-flux` | **Unified workflow** - Explore → PRD → Planning → Approval → Execution |
+| `/explore` | Explore codebase with parallel agents, generate report |
 | `/prd` | Create PRD only (use `/aeon-flux` for full workflow) |
 | `/start-planning` | Create planning structure only |
 | `/loop` | Start autonomous execution |
