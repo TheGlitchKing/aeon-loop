@@ -40,29 +40,29 @@ I'd like to help you build [their idea]. Let me ask a few questions to make sure
 
 ### Ask Clarifying Questions
 
-Ask 3-5 essential questions with lettered options for quick answers:
+Ask 3-5 essential questions with numbered sub-options for quick answers:
 
 ```
 1. What is the primary goal?
-   A. New product/feature from scratch
-   B. Enhancement to existing system
-   C. Fix or refactor existing code
-   D. Other: [please specify]
+   1.1. New product/feature from scratch
+   1.2. Enhancement to existing system
+   1.3. Fix or refactor existing code
+   1.4. Other: [please specify]
 
 2. What's the target scope?
-   A. Minimal viable version (MVP)
-   B. Full-featured implementation
-   C. Proof of concept / prototype
-   D. Production-ready with tests
+   2.1. Minimal viable version (MVP)
+   2.2. Full-featured implementation
+   2.3. Proof of concept / prototype
+   2.4. Production-ready with tests
 
 3. What technologies/frameworks?
-   A. Use existing stack (I'll detect from codebase)
-   B. [Suggest based on project type]
-   C. [Suggest alternative]
-   D. Other: [please specify]
+   3.1. Use existing stack (I'll detect from codebase)
+   3.2. [Suggest based on project type]
+   3.3. [Suggest alternative]
+   3.4. Other: [please specify]
 ```
 
-User can respond: "1A, 2B, 3A"
+User can respond: "1.1, 2.2, 3.1"
 
 ### Continue Until 90% Confident
 

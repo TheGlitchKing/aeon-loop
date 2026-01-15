@@ -24,7 +24,7 @@ This skill (`/prd`) creates just the PRD. Use `/aeon-flux` for the full workflow
 ## The Job
 
 1. Receive a feature/task description from the user
-2. Ask 3-5 essential clarifying questions (with lettered options)
+2. Ask 3-5 essential clarifying questions (with numbered sub-options)
 3. Generate a structured PRD based on answers
 4. Save to `.planning/[task-slug]/prd.md`
 5. **After PRD is created**, ask if user wants to continue with planning:
@@ -48,25 +48,25 @@ Ask only critical questions where the initial prompt is ambiguous. Focus on:
 
 ```
 1. What is the primary goal of this feature?
-   A. Improve user experience
-   B. Add new functionality
-   C. Fix existing issues
-   D. Other: [please specify]
+   1.1. Improve user experience
+   1.2. Add new functionality
+   1.3. Fix existing issues
+   1.4. Other: [please specify]
 
 2. What is the scope?
-   A. Minimal viable version
-   B. Full-featured implementation
-   C. Just the backend/API
-   D. Just the UI
+   2.1. Minimal viable version
+   2.2. Full-featured implementation
+   2.3. Just the backend/API
+   2.4. Just the UI
 
 3. What are the key constraints?
-   A. Must integrate with existing code
-   B. Greenfield implementation
-   C. Performance critical
-   D. Security critical
+   3.1. Must integrate with existing code
+   3.2. Greenfield implementation
+   3.3. Performance critical
+   3.4. Security critical
 ```
 
-This lets users respond with "1A, 2B, 3A" for quick iteration.
+This lets users respond with "1.1, 2.2, 3.1" for quick iteration.
 
 ---
 
@@ -334,7 +334,7 @@ stories:
 
 Before saving the PRD:
 
-- [ ] Asked clarifying questions with lettered options
+- [ ] Asked clarifying questions with numbered sub-options (1.1, 1.2, etc.)
 - [ ] Incorporated user's answers
 - [ ] User stories are small and specific (2-3 sentence rule)
 - [ ] Each story has mandatory acceptance criteria (typecheck, tests, browser verify)
