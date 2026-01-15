@@ -33,26 +33,121 @@ Aeon Loop is a Claude Code plugin that enables autonomous, multi-iteration task 
 # Install from marketplace
 /plugin add TheGlitchKing/aeon-loop
 
-# Option A: Full PRD workflow (recommended for complex features)
-/prd "Build a REST API with JWT auth"
-# Answer clarifying questions, review generated PRD
-/loop "Build a REST API with JWT auth" --done "COMPLETE"
+# Start any project with one command:
+/aeon-flux
+```
 
-# Option B: Quick planning (for medium tasks)
-/start-planning "Add dark mode toggle"
-# Edit .planning/add-dark-mode-toggle/task_plan.md
-/loop "Add dark mode toggle" --done "COMPLETE"
+That's it. The unified workflow guides you through everything.
 
-# Option C: Direct loop (for simple tasks)
-/loop "Fix typo in header" --done "COMPLETE"
+## The Workflow
 
-# Walk away... come back later
+When you run `/aeon-flux`, you'll be guided through a complete project lifecycle:
 
-# Check progress
-/status
+```
+/aeon-flux
+    │
+    ▼
+┌─────────────────────────────────────────────────────────────┐
+│ PHASE 0: EXPLORATION (Optional)                             │
+│                                                             │
+│ "I see this is an existing project.                        │
+│  Would you like me to explore the codebase first?"         │
+│                                                             │
+│ 1.1. Full analysis (structure, patterns, architecture)     │
+│ 1.2. Quick overview                                        │
+│ 2.1. Skip - I'm familiar with this codebase               │
+│ 2.2. Skip - This is a new project                          │
+│                                                             │
+│ → Launches parallel agents to explore                      │
+│ → Saves report to .planning/exploration/report.md          │
+└─────────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────────────────────────────┐
+│ PHASE 1: DISCOVERY                                          │
+│                                                             │
+│ "What would you like to build?"                            │
+│                                                             │
+│ → Asks 3-5 clarifying questions with numbered options      │
+│ → You respond: "1.1, 2.2, 3.1"                             │
+│ → Continues until 90% confident                            │
+└─────────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────────────────────────────┐
+│ PHASE 2: PRD CREATION                                       │
+│                                                             │
+│ → Generates Product Requirements Document                   │
+│ → Right-sized user stories (completable in one iteration)  │
+│ → Saves to .planning/[task-slug]/prd.md                    │
+│                                                             │
+│ "Does this PRD capture what you want?"                     │
+└─────────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────────────────────────────┐
+│ PHASE 3: PLANNING                                           │
+│                                                             │
+│ → Creates implementation plan from PRD                      │
+│ → Groups stories into phases                                │
+│ → Saves to .planning/[task-slug]/task_plan.md              │
+│                                                             │
+│ "Here's the plan. Ready to start?"                         │
+└─────────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────────────────────────────┐
+│ PHASE 4: EXECUTION MODE                                     │
+│                                                             │
+│ "How would you like to proceed?"                           │
+│                                                             │
+│ A) Set it and forget it (Recommended)                      │
+│    → Autonomous execution until complete                    │
+│    → Check /status anytime                                  │
+│    → Use /abort if needed                                   │
+│                                                             │
+│ B) Be in the loop                                           │
+│    → Collaborative, checks in after each story              │
+│    → You guide decisions as you go                          │
+└─────────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────────────────────────────┐
+│ PHASE 5: IMPLEMENTATION                                     │
+│                                                             │
+│ → Works through stories in dependency order                 │
+│ → Updates progress in STATE blocks                          │
+│ → Continues until all stories complete                      │
+└─────────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────────────────────────────┐
+│ PHASE 6: VERIFICATION                                       │
+│                                                             │
+│ → Re-reads original PRD                                     │
+│ → Verifies all requirements met                             │
+│ → If something was missed, creates follow-up plan           │
+│                                                             │
+│ "All requirements implemented. Project complete!"           │
+└─────────────────────────────────────────────────────────────┘
+```
 
-# Stop if needed
-/abort
+## Individual Commands
+
+You can also use individual commands if you prefer granular control:
+
+```bash
+# Explore codebase only
+/explore
+
+# Create PRD only
+/prd "Feature description"
+
+# Create planning structure only
+/start-planning "Task name"
+
+# Start autonomous execution directly
+/loop "Task description" --done "COMPLETE"
 ```
 
 ## Planning System
@@ -153,6 +248,8 @@ Build a REST API with JWT auth
 
 | Command | Description | Example |
 |---------|-------------|---------|
+| `/aeon-flux` | **Unified workflow** - Explore → PRD → Plan → Execute | `/aeon-flux` |
+| `/explore` | Explore codebase with parallel agents | `/explore` or `/explore "auth system"` |
 | `/prd` | Generate a Product Requirements Document | `/prd "User authentication"` |
 | `/start-planning` | Create planning structure only | `/start-planning "Build API"` |
 | `/loop` | Start autonomous execution | `/loop "Build API" --done "DONE"` |
@@ -161,6 +258,7 @@ Build a REST API with JWT auth
 | `/pause` | Pause after current iteration | `/pause` |
 | `/resume` | Continue paused loop | `/resume` |
 | `/retry` | Retry a failed chunk | `/retry chunk-003` |
+| `/checkpoint` | Force save current state | `/checkpoint` |
 
 ### /start-planning vs /loop
 
