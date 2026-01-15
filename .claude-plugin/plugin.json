@@ -1,0 +1,9 @@
+{
+  "name": "aeon-loop",
+  "version": "1.0.0",
+  "description": "Autonomous task execution with 'start and walk away' capability. Combines loop engine, orchestrated subagents, context persistence, and intelligent failure recovery.",
+  "author": {
+    "name": "TheGlitchKing",
+    "email": "theglitchking@users.noreply.github.com"
+  }
+}

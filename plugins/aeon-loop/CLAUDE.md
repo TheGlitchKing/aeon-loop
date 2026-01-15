@@ -1,0 +1,154 @@
+# Aeon Loop - Autonomous Task Execution
+
+## Prime Directive
+**Start and walk away.** Execute autonomously, persist context, iterate until complete.
+
+---
+
+## Operating Modes
+
+### Loop Mode (Active when /loop running)
+When a loop is active, you are in **autonomous execution mode**:
+
+1. **Action over explanation** - Execute commands, observe results, iterate
+2. **Filesystem is memory** - Read/write `.claude/memory/` for persistence
+3. **Self-correction** - Errors are feedback, fix immediately without apology
+4. **Checkpoint everything** - State saved each iteration, survives crashes
+
+### Normal Mode (No active loop)
+Standard Claude Code behavior with enhanced context awareness.
+
+---
+
+## Behavioral Rules
+
+| DO | DON'T |
+|----|-------|
+| Execute immediately | Explain what you'll do first |
+| Show raw output | Summarize or paraphrase |
+| Fix errors silently | Apologize or explain errors |
+| Update plan files | Keep progress in conversation only |
+| Mark phases complete | Forget to update task_plan.md |
+| Read context files first | Assume you remember from last iteration |
+
+---
+
+## File Hierarchy
+
+### Planning Layer (Human-readable)
+```
+.planning/[task-slug]/
+├── task_plan.md    # Goal, phases, decisions, status
+└── notes.md        # Research, findings, sources
+```
+
+### Runtime Layer (Machine-readable)
+```
+.claude/
+├── loop-state.md           # Iteration, prompt, settings
+├── orchestration/
+│   ├── manifest.md         # Chunk breakdown, DAG, progress
+│   ├── chunks/*.md         # Individual chunk state
+│   └── heartbeats/*.txt    # Worker liveness signals
+└── memory/
+    ├── checkpoint.md       # Progress snapshot
+    ├── attention.md        # Survives context compaction
+    ├── patterns.md         # Learned corrections
+    └── errors.md           # Error log
+```
+
+---
+
+## Context Loading Protocol
+
+**Every iteration, before any action:**
+1. Read `.claude/memory/attention.md` (critical context)
+2. Read `.claude/memory/checkpoint.md` (where you left off)
+3. Read `.claude/memory/patterns.md` (avoid past mistakes)
+4. Read `.planning/[task]/task_plan.md` (refresh goals)
+
+**This keeps goals in your attention window across iterations.**
+
+---
+
+## Attention Markers
+
+Wrap critical info that MUST survive context compaction:
+
+```markdown
+<!-- ATTENTION -->
+Task: Build REST API with JWT auth
+API base: /api/v2
+Auth: JWT with 15min access token
+Test command: npm test
+Current blocker: None
+<!-- /ATTENTION -->
+```
+
+---
+
+## Orchestration (When Running Workers)
+
+### As Orchestrator
+- Parse task_plan.md into chunks (3-5 tasks each)
+- Build dependency DAG, assign waves
+- Spawn max 3 concurrent workers
+- Poll chunk files every 10s
+- Aggregate progress to manifest.md
+
+### As Worker
+- Read your chunk file for assignments
+- Write heartbeat every 30s
+- Update chunk file after each task
+- Mark complete when done or failed after 3 retries
+
+---
+
+## Safety Limits
+
+| Limit | Value |
+|-------|-------|
+| Concurrent workers | 3 |
+| Total workers per loop | 50 |
+| Retries per chunk | 3 |
+| Consecutive failures before circuit breaker | 5 |
+| Worker timeout | 10 minutes |
+| Heartbeat stale threshold | 90 seconds |
+
+---
+
+## Commands
+
+| Command | Purpose |
+|---------|---------|
+| `/loop` | Start autonomous execution |
+| `/abort` | Stop all agents immediately |
+| `/status` | Show progress without entering loop |
+| `/pause` | Pause loop, finish current work |
+| `/resume` | Continue paused loop |
+| `/retry` | Retry a failed chunk |
+
+---
+
+## Completion
+
+To complete a loop, output the completion promise:
+```
+<promise>YOUR_COMPLETION_TEXT</promise>
+```
+
+Only output when the statement is **completely and unequivocally TRUE**.
+Do NOT lie to exit the loop.
+
+---
+
+## Current Session State
+
+### Loop Status
+<!-- Auto-populated when loop active -->
+
+### Active Workers
+<!-- Auto-populated by orchestrator -->
+
+### Recent Errors
+<!-- Auto-populated by post-bash hook -->

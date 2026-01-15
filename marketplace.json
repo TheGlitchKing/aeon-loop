@@ -1,0 +1,23 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "aeon-loop-marketplace",
+  "version": "1.0.0",
+  "description": "Autonomous task execution plugin - start and walk away with full context persistence",
+  "owner": {
+    "name": "TheGlitchKing",
+    "email": "theglitchking@users.noreply.github.com"
+  },
+  "plugins": [
+    {
+      "name": "aeon-loop",
+      "description": "Autonomous loop engine with orchestrated subagents, DAG-based task execution, context persistence across iterations, and intelligent failure recovery with circuit breaker",
+      "version": "1.0.0",
+      "author": {
+        "name": "TheGlitchKing",
+        "email": "theglitchking@users.noreply.github.com"
+      },
+      "source": "./plugins/aeon-loop",
+      "category": "productivity"
+    }
+  ]
+}
