@@ -1,91 +1,73 @@
 # Aeon Loop Examples
 
-Learn how to use each command effectively.
+Learn how to use Aeon Loop effectively through these examples.
 
-## The Two Approaches
+## The Unified Workflow
 
-### Option A: Plan First (Recommended)
+For most projects, start with:
+
 ```bash
-/start-planning "Your task"     # Create planning structure
-# Edit .planning/[task]/task_plan.md to customize
-/loop "Your task" --done "DONE" # Start autonomous execution
+/aeon-flux
 ```
 
-### Option B: Direct Loop
-```bash
-/loop "Your task" --done "DONE" # Creates planning files automatically
-```
+This single command guides you through the entire project lifecycle:
 
-## When to Plan First
-
-| Scenario | Recommendation |
-|----------|----------------|
-| Simple, clear task | Direct `/loop` is fine |
-| Complex task | `/start-planning` first |
-| Need custom phases | `/start-planning` first |
-| Want to review before executing | `/start-planning` first |
-| API development | `/start-planning` first |
-| Large refactoring | `/start-planning` first |
+1. **Exploration** - Understand the existing codebase (optional)
+2. **Discovery** - Answer questions until requirements are clear
+3. **PRD Creation** - Generate Product Requirements Document
+4. **Planning** - Create implementation plan with phases
+5. **Approval** - Review and approve before execution
+6. **Execution** - Autonomous or collaborative mode
+7. **Testing** - Comprehensive test creation and verification
+8. **Verification** - Confirm all PRD requirements are met
 
 ## Examples by Use Case
 
-| Example | Use Case |
-|---------|----------|
-| [01-simple-feature.md](01-simple-feature.md) | Basic feature implementation |
-| [02-bug-fix-with-tests.md](02-bug-fix-with-tests.md) | Bug fixes with verification |
-| [03-large-refactoring.md](03-large-refactoring.md) | Multi-file changes |
-| [04-api-development.md](04-api-development.md) | Building new APIs |
+| Example | Description |
+|---------|-------------|
+| [01-simple-feature.md](01-simple-feature.md) | Add a feature to an existing project |
+| [02-bug-fix.md](02-bug-fix.md) | Fix a bug with proper testing |
+| [03-new-project.md](03-new-project.md) | Build something from scratch |
+| [04-individual-commands.md](04-individual-commands.md) | Using `/explore`, `/prd`, `/loop` separately |
 
-## Examples by Command
+## Quick Reference
 
-| Example | Commands Covered |
-|---------|-----------------|
-| [05-using-abort.md](05-using-abort.md) | `/abort`, `/abort clear`, `/abort status` |
-| [06-using-status.md](06-using-status.md) | `/status` |
-| [07-using-pause-resume.md](07-using-pause-resume.md) | `/pause`, `/resume` |
-| [08-using-retry.md](08-using-retry.md) | `/retry` |
-
-## Quick Command Reference
-
+### Start Any Project
 ```bash
-# Create planning structure (without starting loop)
-/start-planning "Your task name"
-
-# Start autonomous execution (creates planning if needed)
-/loop "Your task" --done "COMPLETE"
-
-# Check progress
-/status
-
-# Stop everything immediately
-/abort
-
-# Resume after abort
-/abort clear
-/resume
-
-# Pause gracefully
-/pause
-
-# Continue after pause
-/resume
-
-# Retry a failed chunk
-/retry chunk-003
+/aeon-flux
 ```
 
-## Planning Files Structure
+### Check Progress (During Execution)
+```bash
+/status
+```
+
+### Stop Execution
+```bash
+/abort
+```
+
+### Pause and Resume
+```bash
+/pause
+/resume
+```
+
+## Files Created
 
 ```
 .planning/[task-slug]/
-├── task_plan.md    # Phases, decisions, status
-└── notes.md        # Research, findings
+├── prd.md              # Product Requirements Document
+├── task_plan.md        # Implementation plan with phases
+└── notes.md            # Research and findings
+
+.planning/exploration/
+└── report.md           # Codebase exploration report (if explored)
 
 .claude/
-├── loop-state.md   # Iteration tracking
+├── loop-state.md       # Loop execution state
 └── memory/
-    ├── checkpoint.md  # Progress snapshot
-    ├── attention.md   # Critical context
-    ├── patterns.md    # Learned patterns
-    └── errors.md      # Error log
+    ├── checkpoint.md   # Progress snapshot
+    ├── attention.md    # Critical context
+    └── patterns.md     # Learned patterns
 ```
