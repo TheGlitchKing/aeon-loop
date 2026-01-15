@@ -14,6 +14,7 @@
 | Attention preservation | - | ✅ | ✅ | ✅ |
 | Action philosophy | - | ✅ | - | ✅ |
 | Persistent planning | - | - | - | ✅ |
+| PRD generation | - | - | - | ✅ |
 
 ## What Is This?
 
@@ -32,13 +33,18 @@ Aeon Loop is a Claude Code plugin that enables autonomous, multi-iteration task 
 # Install from marketplace
 /plugin add TheGlitchKing/aeon-loop
 
-# Option A: Plan first (recommended for complex tasks)
-/start-planning "Build a REST API with JWT auth"
-# Edit .planning/build-a-rest-api-with-jwt-auth/task_plan.md
+# Option A: Full PRD workflow (recommended for complex features)
+/prd "Build a REST API with JWT auth"
+# Answer clarifying questions, review generated PRD
 /loop "Build a REST API with JWT auth" --done "COMPLETE"
 
-# Option B: Direct loop (for simple tasks)
-/loop "Add logout button to navbar" --done "COMPLETE"
+# Option B: Quick planning (for medium tasks)
+/start-planning "Add dark mode toggle"
+# Edit .planning/add-dark-mode-toggle/task_plan.md
+/loop "Add dark mode toggle" --done "COMPLETE"
+
+# Option C: Direct loop (for simple tasks)
+/loop "Fix typo in header" --done "COMPLETE"
 
 # Walk away... come back later
 
@@ -147,6 +153,7 @@ Build a REST API with JWT auth
 
 | Command | Description | Example |
 |---------|-------------|---------|
+| `/prd` | Generate a Product Requirements Document | `/prd "User authentication"` |
 | `/start-planning` | Create planning structure only | `/start-planning "Build API"` |
 | `/loop` | Start autonomous execution | `/loop "Build API" --done "DONE"` |
 | `/abort` | Stop all agents immediately | `/abort` or `/abort clear` |
@@ -242,6 +249,7 @@ See the [examples/](examples/) folder for detailed usage guides:
 ```
 project/
 ├── .planning/[task-slug]/          # PLANNING LAYER
+│   ├── prd.md                      # Product Requirements Document (from /prd)
 │   ├── task_plan.md                # Phases, decisions, status
 │   └── notes.md                    # Research and findings
 │
