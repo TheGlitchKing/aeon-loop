@@ -118,11 +118,24 @@ When you run `/aeon-flux`, you'll be guided through a complete project lifecycle
 │ → Works through stories in dependency order                 │
 │ → Updates progress in STATE blocks                          │
 │ → Continues until all stories complete                      │
+│ → Verifies all STATE blocks show passes: true               │
 └─────────────────────────────────────────────────────────────┘
     │
     ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ PHASE 6: VERIFICATION                                       │
+│ PHASE 6: COMPREHENSIVE TESTING                              │
+│                                                             │
+│ → Only proceeds if all stories are complete                 │
+│ → Detects test framework (jest, pytest, go test, etc.)     │
+│ → Creates missing tests for new functionality               │
+│ → Runs full test suite                                      │
+│ → Fixes any failing tests                                   │
+│ → Verifies all tests pass before proceeding                 │
+└─────────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────────────────────────────┐
+│ PHASE 7: VERIFICATION                                       │
 │                                                             │
 │ → Re-reads original PRD                                     │
 │ → Verifies all requirements met                             │

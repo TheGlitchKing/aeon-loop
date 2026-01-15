@@ -18,8 +18,9 @@ Aeon Flux guides users through:
 4. **Planning** - Create task plan with right-sized stories
 5. **Approval** - User reviews and approves plan
 6. **Execution Mode Choice** - Autonomous or collaborative
-7. **Implementation** - Execute until complete
-8. **Verification** - Check PRD for completeness
+7. **Implementation** - Execute until all stories complete
+8. **Comprehensive Testing** - Create and run tests for entire product
+9. **Verification** - Check PRD for completeness
 
 ---
 
@@ -348,13 +349,10 @@ bash "${CLAUDE_PROJECT_DIR:-$(pwd)}/plugins/aeon-loop/scripts/setup-loop.sh" "[T
 
 ### Completion Check
 
-When all stories have `passes: true` in STATE block, or explicit completion:
+When all stories have `passes: true` in STATE block:
 
-```
-<promise>COMPLETE</promise>
-```
-
-Then proceed to Phase 6: Verification.
+1. Verify all STATE blocks show `passes: true`
+2. Proceed to Phase 6: Comprehensive Testing
 
 ---
 
@@ -401,11 +399,131 @@ In collaborative mode, remind user they can:
 - `/pause` - Pause and come back later
 - `/abort` - Stop completely
 
+When all stories complete, proceed to Phase 6: Comprehensive Testing.
+
 ---
 
-## Phase 6: Final Verification
+## Phase 6: Comprehensive Testing
 
-When all stories are marked complete:
+**Only proceed to this phase after verifying all stories have `passes: true` in STATE block.**
+
+### Pre-Testing Verification
+
+Before running tests, confirm:
+
+```bash
+# Check all stories are complete
+grep -c "passes: false" .planning/*/prd.md
+# Should return 0
+```
+
+If any stories are incomplete, return to implementation phase.
+
+### Detect Test Framework
+
+Identify the project's test setup:
+
+```bash
+# Check for common test frameworks
+ls package.json 2>/dev/null && grep -E "jest|mocha|vitest|ava" package.json
+ls pytest.ini pyproject.toml setup.py 2>/dev/null
+ls Cargo.toml 2>/dev/null && grep -q "\[dev-dependencies\]" Cargo.toml
+ls *_test.go 2>/dev/null
+ls build.gradle pom.xml 2>/dev/null
+```
+
+### Determine Test Command
+
+Based on detected framework:
+
+| Framework | Test Command |
+|-----------|--------------|
+| Jest | `npm test` or `npx jest` |
+| Pytest | `pytest` or `python -m pytest` |
+| Go | `go test ./...` |
+| Cargo | `cargo test` |
+| JUnit | `./gradlew test` or `mvn test` |
+
+### Create Missing Tests
+
+For each user story in the PRD, verify tests exist:
+
+```
+Checking test coverage for implemented features...
+
+US-001: User Registration
+  → Found: src/tests/auth.test.ts (registration tests)
+
+US-002: User Login
+  → Missing tests! Creating...
+  → Created: src/tests/login.test.ts
+
+US-003: API Endpoints
+  → Found: src/tests/api.test.ts (partial)
+  → Adding missing endpoint tests...
+```
+
+### Test Creation Guidelines
+
+When creating tests:
+
+1. **Unit tests** for individual functions/methods
+2. **Integration tests** for API endpoints and data flow
+3. **Edge cases** based on acceptance criteria in PRD
+4. **Error handling** tests for failure scenarios
+
+### Run Full Test Suite
+
+```bash
+# Run all tests
+[detected test command]
+
+# Example outputs to handle:
+# ✓ All tests passed → proceed to verification
+# ✗ Tests failed → fix and re-run
+```
+
+### Handle Test Failures
+
+If tests fail:
+
+1. Analyze failure output
+2. Identify root cause (implementation bug vs test bug)
+3. Fix the issue
+4. Re-run tests
+5. Repeat until all pass
+
+```
+Test Results: 47 passed, 2 failed
+
+Failed:
+  ✗ login.test.ts: should reject invalid credentials
+  ✗ api.test.ts: should return 404 for missing resource
+
+Fixing issues...
+[Makes fixes]
+
+Re-running tests...
+Test Results: 49 passed, 0 failed
+
+All tests passing! Proceeding to verification.
+```
+
+### Test Completion Criteria
+
+Before proceeding to verification:
+
+- [ ] All existing tests pass
+- [ ] New tests created for each user story
+- [ ] Edge cases covered
+- [ ] No skipped or pending tests
+- [ ] Test coverage acceptable for project
+
+---
+
+## Phase 7: Final Verification
+
+When all stories are marked complete AND all tests pass:
 
 ### Re-read PRD
 
