@@ -9,14 +9,29 @@ Create detailed Product Requirements Documents that integrate with Aeon Loop's p
 
 ---
 
+## Unified Workflow Available
+
+For a complete guided experience (PRD → Planning → Approval → Execution), use:
+
+```
+/aeon-flux
+```
+
+This skill (`/prd`) creates just the PRD. Use `/aeon-flux` for the full workflow.
+
+---
+
 ## The Job
 
 1. Receive a feature/task description from the user
 2. Ask 3-5 essential clarifying questions (with lettered options)
 3. Generate a structured PRD based on answers
 4. Save to `.planning/[task-slug]/prd.md`
+5. **After PRD is created**, ask if user wants to continue with planning:
+   - If yes → Guide them to run `/aeon-flux` to continue the workflow
+   - If no → End here, they can manually run `/loop` later
 
-**Important:** Do NOT start implementing. Just create the PRD. The user can then run `/loop` to execute.
+**Important:** Do NOT start implementing. Just create the PRD.
 
 ---
 
@@ -112,6 +127,33 @@ Remaining questions or areas needing clarification.
 
 ---
 
+## Story-Sizing Discipline (Ralph Method)
+
+**Critical Rule:** Each user story must be completable in ONE context window (one loop iteration).
+
+### Right-Sized Stories (GOOD)
+- Adding a database column with migration
+- Creating a single UI component
+- Implementing one API endpoint
+- Adding a filter dropdown to a list
+- Writing tests for one module
+
+### Too Large - Must Split (BAD)
+- "Build entire dashboard" → Split into individual widgets
+- "Implement authentication system" → Split into register, login, logout, session
+- "Refactor entire API" → Split by endpoint or module
+
+### The 2-3 Sentence Rule
+**If you cannot describe the change in 2-3 sentences, it is too big.**
+
+### Mandatory Acceptance Criteria
+Every story MUST include at minimum:
+- [ ] Typecheck passes (for TypeScript/typed projects)
+- [ ] Tests pass (if tests exist for this area)
+- [ ] Verify in browser (for UI changes)
+
+---
+
 ## Writing for Implementation
 
 The PRD reader may be an AI agent executing via `/loop`. Therefore:
@@ -132,6 +174,35 @@ The PRD reader may be an AI agent executing via `/loop`. Therefore:
 - **Filename:** `prd.md`
 
 After creating the PRD, also create/update `task_plan.md` in the same directory with phases derived from the user stories.
+
+### State Block (Machine-Parseable Progress)
+
+After the user stories section, add a state block for progress tracking:
+
+```markdown
+<!-- STATE
+stories:
+  - id: US-001
+    title: "User Registration"
+    passes: false
+    notes: ""
+  - id: US-002
+    title: "User Login"
+    passes: false
+    notes: ""
+/STATE -->
+```
+
+This block:
+- Lives inside `prd.md` (no separate JSON file needed)
+- Is updated by Claude when stories complete (`passes: false` → `passes: true`)
+- Is parsed by hooks for progress tracking
+- Preserves human readability (inside HTML comment, invisible when rendered)
+
+**Update protocol:** After completing a story, update its `passes` field:
+```bash
+sed -i '/id: US-001/,/notes:/{s/passes: false/passes: true/}' .planning/*/prd.md
+```
 
 ---
 
@@ -235,6 +306,26 @@ Implement user authentication with login, logout, and session management. Users 
 
 - What should session timeout be? (defaulting to 7 days)
 - Should we support "remember me" from launch?
+
+<!-- STATE
+stories:
+  - id: US-001
+    title: "User Registration"
+    passes: false
+    notes: ""
+  - id: US-002
+    title: "User Login"
+    passes: false
+    notes: ""
+  - id: US-003
+    title: "User Logout"
+    passes: false
+    notes: ""
+  - id: US-004
+    title: "Session Persistence"
+    passes: false
+    notes: ""
+/STATE -->
 ```
 
 ---
@@ -245,8 +336,10 @@ Before saving the PRD:
 
 - [ ] Asked clarifying questions with lettered options
 - [ ] Incorporated user's answers
-- [ ] User stories are small and specific
+- [ ] User stories are small and specific (2-3 sentence rule)
+- [ ] Each story has mandatory acceptance criteria (typecheck, tests, browser verify)
 - [ ] Functional requirements are numbered and unambiguous
 - [ ] Non-goals section defines clear boundaries
+- [ ] Added STATE block with all stories (passes: false)
 - [ ] Saved to `.planning/[task-slug]/prd.md`
 - [ ] Created corresponding `task_plan.md` with phases

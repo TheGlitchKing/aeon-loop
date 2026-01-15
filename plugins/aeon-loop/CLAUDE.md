@@ -33,6 +33,58 @@ Standard Claude Code behavior with enhanced context awareness.
 
 ---
 
+## Story-Sizing Discipline
+
+**Each story must complete in ONE iteration (one context window).**
+
+### Right-Sizing Checklist
+Before implementing a story, verify:
+- Can describe the change in 2-3 sentences
+- Only touches 1-3 files
+- Has clear, verifiable acceptance criteria
+- No dependencies on unimplemented stories
+
+### If Story Is Too Big
+Split into smaller stories before starting:
+- "Build auth system" → US-001: Registration, US-002: Login, US-003: Logout, US-004: Sessions
+
+### Mandatory Acceptance Criteria
+Every story MUST include:
+- [ ] Typecheck passes (for TypeScript/typed projects)
+- [ ] Tests pass (if tests exist)
+- [ ] Verify in browser (for UI changes)
+
+---
+
+## State Block Protocol
+
+Task plans and PRDs contain a `<!-- STATE ... /STATE -->` block for machine-parseable progress tracking.
+
+### State Block Format
+```markdown
+<!-- STATE
+stories:
+  - id: US-001
+    title: "Story title"
+    passes: false
+    notes: ""
+/STATE -->
+```
+
+### Updating State
+After completing a story, update its `passes` field:
+```bash
+# Mark story US-001 complete
+sed -i '/id: US-001/,/notes:/{s/passes: false/passes: true/}' .planning/*/prd.md
+```
+
+### Completion Detection
+The Stop hook checks the state block. Loop completes when:
+1. Explicit `<promise>TEXT</promise>` output matches completion promise, OR
+2. All stories in PRD state block have `passes: true`
+
+---
+
 ## File Hierarchy
 
 ### Planning Layer (Human-readable)
@@ -121,12 +173,16 @@ Current blocker: None
 
 | Command | Purpose |
 |---------|---------|
+| `/aeon-flux` | **Unified workflow** - PRD → Planning → Approval → Execution |
+| `/prd` | Create PRD only (use `/aeon-flux` for full workflow) |
+| `/start-planning` | Create planning structure only |
 | `/loop` | Start autonomous execution |
 | `/abort` | Stop all agents immediately |
 | `/status` | Show progress without entering loop |
 | `/pause` | Pause loop, finish current work |
 | `/resume` | Continue paused loop |
 | `/retry` | Retry a failed chunk |
+| `/checkpoint` | Force save current state |
 
 ---
 

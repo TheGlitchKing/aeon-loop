@@ -31,6 +31,27 @@ TASK_SLUG=$(parse_frontmatter "task_slug")
 CONSECUTIVE_FAILURES=$(parse_frontmatter "consecutive_failures" || echo "0")
 TOTAL_WORKERS=$(parse_frontmatter "total_workers_spawned" || echo "0")
 
+# Check if all stories in PRD state block are complete
+check_stories_complete() {
+  local prd_file=".planning/$TASK_SLUG/prd.md"
+  if [[ -f "$prd_file" ]]; then
+    local state=$(sed -n '/<!-- STATE/,/\/STATE -->/p' "$prd_file" 2>/dev/null)
+    if [[ -n "$state" ]]; then
+      # Count total stories and incomplete stories
+      # Use grep -c with || true to avoid exit on no match, then capture just the number
+      local total
+      total=$(echo "$state" | grep -c "id: US-" 2>/dev/null) || total=0
+      local incomplete
+      incomplete=$(echo "$state" | grep -c "passes: false" 2>/dev/null) || incomplete=0
+      # All complete if we have stories and none are incomplete
+      if [[ $total -gt 0 ]] && [[ $incomplete -eq 0 ]]; then
+        return 0
+      fi
+    fi
+  fi
+  return 1
+}
+
 # Validate
 if [[ "$ACTIVE" != "true" ]]; then
   exit 0
@@ -128,6 +149,34 @@ EOF
     rm "$LOOP_STATE_FILE"
     exit 0
   fi
+fi
+
+# Check if all stories are complete (alternative completion detection)
+if check_stories_complete; then
+  echo "All stories marked complete in PRD state block"
+
+  # Save final checkpoint
+  mkdir -p .claude/memory
+  cat > .claude/memory/checkpoint.md << EOF
+---
+checkpoint_time: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+iteration: $ITERATION
+status: complete
+task_slug: "$TASK_SLUG"
+---
+
+## Task Completed
+Loop completed - all stories marked as passing in PRD state block.
+Iterations: $ITERATION
+EOF
+
+  # Update task_plan.md if it exists
+  if [[ -n "$TASK_SLUG" ]] && [[ -f ".planning/$TASK_SLUG/task_plan.md" ]]; then
+    sed -i 's/\*\*Currently in Phase.*/**Completed** - All stories done/' ".planning/$TASK_SLUG/task_plan.md"
+  fi
+
+  rm "$LOOP_STATE_FILE"
+  exit 0
 fi
 
 # Check circuit breaker (5 consecutive failures)

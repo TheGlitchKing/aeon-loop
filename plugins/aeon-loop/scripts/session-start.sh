@@ -9,6 +9,37 @@ exec 2>/dev/null
 
 OUTPUT=""
 
+# Parse state block from file for progress tracking
+parse_state_block() {
+  local file="$1"
+  local type="$2"  # "stories" or "phases"
+  if [[ -f "$file" ]]; then
+    # Extract content between <!-- STATE and /STATE -->
+    local state=$(sed -n '/<!-- STATE/,/\/STATE -->/p' "$file" 2>/dev/null)
+    if [[ -n "$state" ]]; then
+      if [[ "$type" == "stories" ]]; then
+        # Count completed vs total stories
+        local total
+        total=$(echo "$state" | grep -c "id: US-" 2>/dev/null) || total=0
+        local done
+        done=$(echo "$state" | grep -c "passes: true" 2>/dev/null) || done=0
+        if [[ $total -gt 0 ]]; then
+          echo "Stories: $done/$total complete"
+        fi
+      elif [[ "$type" == "phases" ]]; then
+        # Count completed vs total phases
+        local total
+        total=$(echo "$state" | grep -c "id: [0-9]" 2>/dev/null) || total=0
+        local done
+        done=$(echo "$state" | grep -c "passes: true" 2>/dev/null) || done=0
+        if [[ $total -gt 0 ]]; then
+          echo "Phases: $done/$total complete"
+        fi
+      fi
+    fi
+  fi
+}
+
 # Load checkpoint if exists
 if [[ -f ".claude/memory/checkpoint.md" ]]; then
   OUTPUT+="## Previous Checkpoint\n"
@@ -40,7 +71,26 @@ if [[ -f ".claude/loop-state.md" ]]; then
   if [[ "$ACTIVE" == "true" ]]; then
     OUTPUT+="## Active Loop\n"
     OUTPUT+="Iteration: $ITERATION\n"
-    OUTPUT+="Task: $TASK_SLUG\n\n"
+    OUTPUT+="Task: $TASK_SLUG\n"
+
+    # Show progress from state blocks
+    if [[ -n "$TASK_SLUG" ]]; then
+      # Check PRD for story progress
+      if [[ -f ".planning/$TASK_SLUG/prd.md" ]]; then
+        story_progress=$(parse_state_block ".planning/$TASK_SLUG/prd.md" "stories")
+        if [[ -n "$story_progress" ]]; then
+          OUTPUT+="$story_progress\n"
+        fi
+      fi
+      # Check task plan for phase progress
+      if [[ -f ".planning/$TASK_SLUG/task_plan.md" ]]; then
+        phase_progress=$(parse_state_block ".planning/$TASK_SLUG/task_plan.md" "phases")
+        if [[ -n "$phase_progress" ]]; then
+          OUTPUT+="$phase_progress\n"
+        fi
+      fi
+    fi
+    OUTPUT+="\n"
 
     # Load task plan if exists
     if [[ -n "$TASK_SLUG" ]] && [[ -f ".planning/$TASK_SLUG/task_plan.md" ]]; then
