@@ -181,16 +181,27 @@ Create the PRD following the standard structure:
 
 ### Story-Sizing Discipline
 
-**Critical:** Each user story MUST be completable in ONE context window.
+**Critical:** Each user story MUST be completable in the **first 60% of a context window**.
 
-Right-sized examples:
-- Add a database column with migration
-- Create a single UI component
-- Implement one API endpoint
+The 60% rule:
+- 20% for context loading
+- 60% for actual work
+- 20% buffer for errors
+
+Right-sized examples (fit in 60%):
+- Add a database column with migration (~30 lines)
+- Create a single UI component (~50 lines)
+- Implement one API endpoint with tests (~80 lines)
 
 Too large (must split):
-- "Build entire dashboard" → Split into widgets
-- "Implement auth system" → Split into register, login, logout, session
+- "Build entire dashboard" → Split into individual widgets (5-10 stories)
+- "Implement auth system" → Split into US-001: Register, US-002: Login, US-003: Logout, US-004: Sessions
+
+**Verification:** After generating stories, check each one:
+- Can describe in 2-3 sentences?
+- Touches only 1-3 files?
+- Requires <200 lines of code?
+- If NO to any → split it
 
 ### Add State Block
 
@@ -222,12 +233,31 @@ mkdir -p .planning/[task-slug]
 # Write to .planning/[task-slug]/prd.md
 ```
 
+### Verify Story Sizing
+
+Before presenting to user, verify all stories follow the 60% rule:
+
+```
+Checking story sizes...
+
+✓ US-001: User Registration (1 file, ~40 lines) - fits in 60%
+✓ US-002: Login Form (1 file, ~50 lines) - fits in 60%
+✓ US-003: Session Management (2 files, ~80 lines) - fits in 60%
+✗ US-004: Complete Dashboard (8 files, ~400 lines) - TOO LARGE
+
+US-004 needs to be split. I'll break it into smaller stories...
+```
+
+If any story is too large, automatically split it before showing the PRD to the user.
+
 ### Present for Approval
 
 ```
-Here's the PRD:
+Here's the PRD with [N] right-sized user stories:
 
 [Show full PRD content]
+
+All stories sized to complete in 60% of context window (leaves buffer for errors).
 
 Does this capture all the features we discussed? Any changes needed?
 ```

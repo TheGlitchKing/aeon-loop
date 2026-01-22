@@ -72,23 +72,41 @@ Standard Claude Code behavior with enhanced context awareness.
 
 ## Story-Sizing Discipline
 
-**Each story must complete in ONE worker session (one iteration).**
+**Each story must complete in the first 60% of a worker session context window.**
 
-Since each iteration runs in a fresh agent session, stories must be scoped to complete before the worker exits.
+Since each iteration runs in a fresh agent session, stories must be scoped conservatively.
+
+### The 60% Rule
+
+- **20%** - Loading context from files (checkpoint, attention, patterns, PRD, plan)
+- **60%** - Executing the story (implementation, testing, verification)
+- **20%** - Buffer for errors, edge cases, state saving, cleanup
 
 ### Right-Sizing Checklist
+
 Before implementing a story, verify:
 - Can describe the change in 2-3 sentences
 - Only touches 1-3 files
+- Requires reading <10 files
+- Requires writing <200 lines of code
 - Has clear, verifiable acceptance criteria
 - No dependencies on unimplemented stories
-- Can complete in a single worker session
+- Fits in 60% of context window
 
 ### If Story Is Too Big
+
 Split into smaller stories before starting:
 - "Build auth system" → US-001: Registration, US-002: Login, US-003: Logout, US-004: Sessions
 
+### Context Window Reference
+
+For Sonnet 4.5 (~200K context):
+- Total available: 200K tokens
+- Target for story: 120K tokens (60%)
+- Roughly: 400-600 lines of code, 2-3 files, with tests
+
 ### Mandatory Acceptance Criteria
+
 Every story MUST include:
 - [ ] Typecheck passes (for TypeScript/typed projects)
 - [ ] Tests pass (if tests exist)

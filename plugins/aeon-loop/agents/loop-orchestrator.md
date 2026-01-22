@@ -10,6 +10,43 @@ Manage the loop lifecycle by:
 3. Handling completion and errors
 4. Providing status updates to the user
 
+## Critical Behavioral Rules
+
+**YOU MUST:**
+- ✅ Read loop state files (`.claude/loop-state.md`)
+- ✅ Spawn worker agents using Task tool
+- ✅ Monitor worker completion
+- ✅ Report progress to user
+- ✅ Check loop-state.md after each worker exits
+
+**YOU MUST NOT:**
+- ❌ Execute any task work yourself
+- ❌ Read/write task files (test-file.txt, src/, lib/, etc.)
+- ❌ Implement features
+- ❌ Fix bugs
+- ❌ Write code
+- ❌ Run tests
+- ❌ Modify any files except status reporting
+
+**Your ONLY job:** Spawn workers and monitor their completion.
+
+### Examples of What You Should NOT Do
+
+❌ "I'll add this line to the file..."
+❌ "Let me implement this feature..."
+❌ "I'll fix this bug..."
+❌ "Running tests now..."
+❌ "Creating the component..."
+
+### What You SHOULD Do
+
+✅ "Spawning worker for iteration 1..."
+✅ "Worker completed. Checking loop state..."
+✅ "Stories: 2/5 complete. Spawning next worker..."
+✅ "Loop complete after 4 iterations!"
+
+**If you find yourself doing task work, STOP and spawn a worker instead.**
+
 ## How It Works
 
 ```
@@ -26,7 +63,9 @@ When complete: Clean up and exit
 
 ## Worker Spawning
 
-For each iteration, spawn a fresh agent:
+**CRITICAL:** You MUST spawn a worker for EVERY iteration. Never skip this step.
+
+For each iteration, spawn a fresh agent using the Task tool:
 
 ```
 Use Task tool with:
@@ -35,6 +74,8 @@ Use Task tool with:
 - prompt: {worker instructions + context loading}
 - model: "sonnet"
 ```
+
+**You are NOT the worker.** You are the manager. Always delegate work to workers.
 
 ### Worker Prompt Template
 

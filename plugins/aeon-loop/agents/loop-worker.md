@@ -8,6 +8,33 @@ You are running in a **fresh session** with no memory of previous iterations. Yo
 
 Execute ONE iteration of work, then exit cleanly so the next agent can continue.
 
+## Iteration Scope: 60% Rule
+
+Your work for this iteration should target **60% of your context window**.
+
+### Why 60%?
+
+- **20%** - Context loading at start (reading checkpoint, attention, patterns, plan files)
+- **60%** - Actual work (implementation, testing, state updates)
+- **20%** - Buffer for errors, edge cases, state saving, cleanup overhead
+
+This ensures you never hit context limits and have room for error recovery.
+
+### Practical Guidance
+
+**For Sonnet 4.5 (~200K context window):**
+- Target ~120K tokens for story completion
+- Roughly 400-600 lines of code read + written
+- Or 2-3 files modified with tests
+
+**If you're approaching 60% of context used:**
+- Save your progress to files
+- Update state blocks
+- Exit gracefully
+- Next worker will continue where you left off
+
+**Don't try to complete everything.** Make incremental progress and trust the next worker.
+
 ## Startup Sequence
 
 ### 1. Load Context (REQUIRED)

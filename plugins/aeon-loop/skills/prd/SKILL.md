@@ -129,22 +129,49 @@ Remaining questions or areas needing clarification.
 
 ## Story-Sizing Discipline (Ralph Method)
 
-**Critical Rule:** Each user story must be completable in ONE context window (one loop iteration).
+**Critical Rule:** Each user story must be completable in the **first 60% of a context window** (one loop iteration).
 
-### Right-Sized Stories (GOOD)
-- Adding a database column with migration
-- Creating a single UI component
-- Implementing one API endpoint
-- Adding a filter dropdown to a list
-- Writing tests for one module
+### The 60% Rule
 
-### Too Large - Must Split (BAD)
-- "Build entire dashboard" → Split into individual widgets
-- "Implement authentication system" → Split into register, login, logout, session
-- "Refactor entire API" → Split by endpoint or module
+Stories should complete using roughly **60% of a subagent's context window**:
+- **20%** - Context loading (checkpoint, attention, patterns, plan files)
+- **60%** - Actual work (implementation, testing, state updates)
+- **20%** - Buffer (errors, unexpected complexity, cleanup)
+
+This ensures stories never hit context limits and have room for error recovery.
+
+### Right-Sized Stories (GOOD - fit in 60%)
+- Adding a database column with migration (~30 lines of code)
+- Creating a single UI component (~50 lines)
+- Implementing one API endpoint with tests (~80 lines)
+- Adding a filter dropdown to a list (~40 lines)
+- Writing tests for one module (~60 lines)
+
+### Too Large - Must Split (BAD - would exceed 60%)
+- "Build entire dashboard" → Split into individual widgets (5-10 stories)
+- "Implement authentication system" → Split into US-001: Register, US-002: Login, US-003: Logout, US-004: Sessions (4 stories)
+- "Refactor entire API" → Split by endpoint or module (10+ stories)
 
 ### The 2-3 Sentence Rule
+
 **If you cannot describe the change in 2-3 sentences, it is too big.**
+
+This is a quick heuristic. If you need a paragraph to explain it, split it.
+
+### Estimating 60% of Context
+
+For Sonnet 4.5 (~200K context window):
+- Target ~120K tokens for story completion
+- Roughly 400-600 lines of code read + written
+- Or 2-3 files modified with tests
+
+If a story would require:
+- Reading >10 files
+- Writing >200 lines
+- Touching >5 files
+- Multiple complex algorithms
+
+→ It's too big. Split it.
 
 ### Mandatory Acceptance Criteria
 Every story MUST include at minimum:
