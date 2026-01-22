@@ -5,37 +5,76 @@
 
 ---
 
+## Architecture: Fresh Sessions Per Iteration
+
+**Key Difference**: Unlike traditional loops that re-inject prompts in the same session, Aeon Loop **spawns a fresh Task agent for each iteration**.
+
+```
+User runs /loop → Orchestrator spawns → Loop:
+  Spawn Worker (fresh session)
+    ↓
+  Worker loads context from files
+    ↓
+  Worker does work, updates files, exits
+    ↓
+  stop-loop.sh hook checks completion
+    ↓
+  If not done: spawn next worker
+```
+
+### Why Fresh Sessions?
+
+- **Clean context boundaries** - Each iteration starts with zero context
+- **Explicit state management** - Must read/write files, no implicit memory
+- **No context bloat** - Context window never grows across iterations
+- **Right-sizing enforcement** - Forces proper state persistence
+
+---
+
 ## Operating Modes
 
-### Loop Mode (Active when /loop running)
-When a loop is active, you are in **autonomous execution mode**:
+### Loop Worker Mode (You are a worker agent)
+When spawned as a worker, you are in **fresh session autonomous mode**:
 
-1. **Action over explanation** - Execute commands, observe results, iterate
-2. **Filesystem is memory** - Read/write `.claude/memory/` for persistence
-3. **Self-correction** - Errors are feedback, fix immediately without apology
-4. **Checkpoint everything** - State saved each iteration, survives crashes
+1. **Load context FIRST** - Read checkpoint, attention, patterns files
+2. **Action over explanation** - Execute commands, observe results
+3. **Filesystem is memory** - ALL context comes from and goes to files
+4. **Self-correction** - Errors are feedback, fix immediately
+5. **Exit when done** - Complete your iteration and exit cleanly
+
+### Loop Orchestrator Mode (You manage workers)
+When spawned as orchestrator, you:
+
+1. Read loop state from `.claude/loop-state.md`
+2. Spawn worker agents for each iteration
+3. Monitor progress between workers
+4. Report status and handle completion
 
 ### Normal Mode (No active loop)
 Standard Claude Code behavior with enhanced context awareness.
 
 ---
 
-## Behavioral Rules
+## Behavioral Rules (Worker Mode)
 
 | DO | DON'T |
 |----|-------|
+| Read context files FIRST | Assume you have any memory |
 | Execute immediately | Explain what you'll do first |
 | Show raw output | Summarize or paraphrase |
 | Fix errors silently | Apologize or explain errors |
 | Update plan files | Keep progress in conversation only |
 | Mark phases complete | Forget to update task_plan.md |
-| Read context files first | Assume you remember from last iteration |
+| Save context for next worker | Leave next worker without context |
+| Exit after your work is done | Try to complete everything in one session |
 
 ---
 
 ## Story-Sizing Discipline
 
-**Each story must complete in ONE iteration (one context window).**
+**Each story must complete in ONE worker session (one iteration).**
+
+Since each iteration runs in a fresh agent session, stories must be scoped to complete before the worker exits.
 
 ### Right-Sizing Checklist
 Before implementing a story, verify:
@@ -43,6 +82,7 @@ Before implementing a story, verify:
 - Only touches 1-3 files
 - Has clear, verifiable acceptance criteria
 - No dependencies on unimplemented stories
+- Can complete in a single worker session
 
 ### If Story Is Too Big
 Split into smaller stories before starting:
@@ -53,6 +93,7 @@ Every story MUST include:
 - [ ] Typecheck passes (for TypeScript/typed projects)
 - [ ] Tests pass (if tests exist)
 - [ ] Verify in browser (for UI changes)
+- [ ] State files updated (passes: true in STATE block)
 
 ---
 

@@ -1,16 +1,21 @@
 ---
 name: loop
-description: Start autonomous task execution loop. Works until completion promise is output or max iterations reached.
-argument-hint: "TASK [--done TEXT] [--max-iters N] [--workers N]"
+description: Start autonomous task execution loop with fresh agent sessions per iteration
+argument-hint: "TASK [--done TEXT] [--max-iters N]"
 allowed-tools: ["Bash(${CLAUDE_PLUGIN_ROOT}/scripts/setup-loop.sh:*)"]
 ---
 
 # Loop Command
 
-Start an autonomous execution loop that continues until:
-1. You output the completion promise: `<promise>TEXT</promise>`
-2. Maximum iterations reached
-3. User runs `/abort`
+Start an autonomous execution loop where **each iteration runs in a fresh agent session**.
+
+## Key Change
+
+Unlike traditional loops that re-inject prompts in the same session, Aeon Loop spawns a fresh Task agent for each iteration. This ensures:
+- Clean context boundaries between iterations
+- Explicit context loading from files
+- No context window bloat
+- Forced discipline in state management
 
 ## Usage
 
@@ -24,55 +29,117 @@ Start an autonomous execution loop that continues until:
 |--------|---------|-------------|
 | `--done <text>` | (none) | Completion promise phrase |
 | `--max-iters <n>` | 100 | Maximum iterations |
-| `--workers <n>` | 3 | Max concurrent workers (capped at 3) |
-| `--chunk-size <n>` | 5 | Tasks per chunk |
-| `--cost-limit <n>` | 10 | Max USD to spend |
 
 ## Examples
 
 ```bash
 /loop Build a REST API with JWT auth and tests --done "COMPLETE"
 /loop Fix all failing tests in src/ --done "ALL TESTS PASS" --max-iters 20
-/loop Refactor authentication module --done "DONE" --workers 2
+/loop Refactor authentication module --done "DONE"
 ```
 
 ## Execution
 
-Run the setup script to initialize loop state:
+**Step 1**: Run setup script to initialize loop state:
 
 ```!
 "${CLAUDE_PLUGIN_ROOT}/scripts/setup-loop.sh" $ARGUMENTS
 ```
 
-## What Happens
+**Step 2**: After setup completes, spawn the orchestrator agent.
 
-1. Creates `.claude/loop-state.md` with iteration tracking
-2. Creates `.planning/[task-slug]/task_plan.md` with phases
-3. Creates `.claude/memory/` files for context persistence
-4. Stop hook will block exit and re-inject your prompt each iteration
-5. Context is preserved across iterations via checkpoint files
+Read `.claude/loop-state.md` to get the task slug, max iterations, completion promise, and original prompt. Then spawn the orchestrator using the Task tool with instructions from `${CLAUDE_PLUGIN_ROOT}/agents/loop-orchestrator.md`.
 
-## During the Loop
+The orchestrator will:
+1. Read loop state
+2. Spawn worker agent for iteration N
+3. Wait for worker to complete
+4. Check if loop is done (via stop-loop.sh hook)
+5. Repeat until complete
 
-- Work on the task iteratively
-- Update `.planning/[task-slug]/task_plan.md` as you complete phases
-- Your progress is automatically checkpointed
-- Errors are captured to `.claude/memory/errors.md`
-- Patterns are learned in `.claude/memory/patterns.md`
+## What Gets Created
+
+```
+.claude/
+├── loop-state.md           # Iteration tracking, completion promise
+└── memory/
+    ├── checkpoint.md       # Iteration summaries
+    ├── attention.md        # Critical context for next iteration
+    ├── patterns.md         # Learned patterns
+    └── errors.md           # Error log
+
+.planning/[task-slug]/
+├── task_plan.md            # Phases and progress
+├── prd.md                  # User stories (if using /aeon-flux)
+└── notes.md                # Research findings
+```
+
+## How It Works
+
+```
+User: /loop "Add feature X" --done "COMPLETE"
+  ↓
+setup-loop.sh creates state files
+  ↓
+Orchestrator agent spawns
+  ↓
+Loop:
+  Orchestrator spawns Worker agent for iteration N
+    ↓
+  Worker loads context from files
+    ↓
+  Worker does work, updates files, exits
+    ↓
+  stop-loop.sh hook checks completion
+    ↓
+  Hook updates loop-state.md
+    ↓
+  Orchestrator checks if done
+    ↓
+  If not done: repeat with iteration N+1
+  ↓
+Loop complete!
+```
+
+## Worker Sessions
+
+Each iteration runs in a **completely fresh agent session**:
+
+1. Worker agent spawns with NO memory
+2. Worker reads context from files:
+   - `.claude/memory/checkpoint.md` - What happened last iteration
+   - `.claude/memory/attention.md` - Critical decisions
+   - `.planning/[task]/task_plan.md` - Task plan
+   - `.planning/[task]/prd.md` - User stories
+3. Worker executes one iteration of work
+4. Worker updates files with progress
+5. Worker exits
+6. Next worker starts fresh
 
 ## Completion
 
-When the task is truly complete, output:
+Loop completes when:
 
-```
-<promise>YOUR_COMPLETION_TEXT</promise>
-```
+1. **Completion promise found**: Worker outputs `<promise>TEXT</promise>`
+2. **STATE block complete**: All stories have `passes: true` in PRD
+3. **Max iterations**: Reached iteration limit
+4. **User abort**: `/abort` command
+5. **Circuit breaker**: 5 consecutive failures
 
-**CRITICAL**: Only output the promise when the statement is completely TRUE.
-Do NOT lie to exit the loop.
+The `stop-loop.sh` hook detects completion and updates loop-state.md.
 
 ## Monitoring
 
 - `/status` - Check current progress
-- `/pause` - Pause after current iteration
+- `/pause` - Pause after current worker completes
 - `/abort` - Stop immediately
+
+## Behavioral Mode
+
+Workers operate in **autonomous execution mode**:
+- Action over explanation
+- Fix errors immediately
+- Update files as progress is made
+- Exit when iteration's work is done
+
+See `agents/loop-worker.md` for full worker instructions.

@@ -254,20 +254,25 @@ TEMP_FILE="${LOOP_STATE_FILE}.tmp.$$"
 sed "s/^iteration: .*/iteration: $NEXT_ITERATION/" "$LOOP_STATE_FILE" > "$TEMP_FILE"
 mv "$TEMP_FILE" "$LOOP_STATE_FILE"
 
-# Build system message
-if [[ -n "$COMPLETION_PROMISE" ]] && [[ "$COMPLETION_PROMISE" != "null" ]]; then
-  SYSTEM_MSG="Aeon Loop iteration $NEXT_ITERATION | Complete: <promise>$COMPLETION_PROMISE</promise> (only when TRUE)"
-else
-  SYSTEM_MSG="Aeon Loop iteration $NEXT_ITERATION | No completion promise - loop runs until max iterations"
-fi
+# Save agent spawn instructions for parent session
+cat > .claude/loop-next-agent.json << EOF
+{
+  "iteration": $NEXT_ITERATION,
+  "max_iterations": $MAX_ITERATIONS,
+  "task_slug": "$TASK_SLUG",
+  "completion_promise": "$COMPLETION_PROMISE",
+  "original_prompt": $(echo "$PROMPT_TEXT" | jq -Rs .)
+}
+EOF
 
-# Output JSON to block stop and re-inject prompt
+# Build continuation message for parent session
+CONTINUE_MSG="Iteration $ITERATION complete. Spawning fresh agent session for iteration $NEXT_ITERATION..."
+
+# Output JSON to allow exit (so parent can spawn next agent)
 jq -n \
-  --arg prompt "$PROMPT_TEXT" \
-  --arg msg "$SYSTEM_MSG" \
+  --arg msg "$CONTINUE_MSG" \
   '{
-    "decision": "block",
-    "reason": $prompt,
+    "decision": "allow",
     "systemMessage": $msg
   }'
 
