@@ -158,6 +158,84 @@ Does this capture what you want to build?
 
 ---
 
+## Phase 1B: Check for Existing Plan
+
+After user confirms the understanding is correct, ask about existing plans:
+
+```
+Do you already have a plan or PRD that you'd like to use?
+
+A) **Yes, I have an existing plan**
+   - I'll import your plan and continue from there
+   - Must have clear tasks/stories and acceptance criteria
+
+B) **No, create a new PRD for me** (Recommended for new projects)
+   - I'll generate a PRD based on our discussion
+   - Then create a detailed implementation plan
+```
+
+**If user chooses A**: Proceed to Phase 1C (Git Safety Gate), then Phase 2B (Import Existing Plan)
+**If user chooses B**: Proceed to Phase 1C (Git Safety Gate), then Phase 2 (PRD Creation)
+
+---
+
+## Phase 1C: Git Safety Gate
+
+Before creating any planning files, check for git repository:
+
+```bash
+# Check if in a git repository
+git rev-parse --git-dir 2>/dev/null
+```
+
+### If Git Repository Detected
+
+```
+I see you're in a git repository. Before I start creating planning files,
+would you like me to create a new branch for this work?
+
+A) **Yes, create a new branch** (Recommended)
+   - I'll create: `aeon/[task-slug]` or a name you specify
+   - Keeps your main branch clean
+
+B) **No, stay on current branch**
+   - I'll work on: [current-branch-name]
+```
+
+### If User Chooses A (Create Branch)
+
+1. Ask for branch name preference:
+   ```
+   What should I name the branch?
+
+   A) Use default: `aeon/[task-slug]`
+   B) Custom name: [let me specify]
+   ```
+
+2. Create the branch:
+   ```bash
+   git checkout -b [branch-name]
+   ```
+
+3. Confirm before proceeding:
+   ```
+   Created branch: [branch-name]
+   Now on branch [branch-name]. Proceeding with planning...
+   ```
+
+### If User Chooses B (Stay on Current Branch)
+
+```
+Staying on branch: [current-branch-name]
+Proceeding with planning...
+```
+
+### If Not a Git Repository
+
+Skip this step entirely and proceed to the next phase.
+
+---
+
 ## Phase 2: PRD Creation
 
 After user confirms understanding:
@@ -261,6 +339,177 @@ All stories sized to complete in 60% of context window (leaves buffer for errors
 
 Does this capture all the features we discussed? Any changes needed?
 ```
+
+---
+
+## Phase 2B: Import Existing Plan
+
+**This phase runs instead of Phase 2 if user chose "Yes, I have an existing plan" in Phase 1B.**
+
+(Git Safety Gate already executed in Phase 1C)
+
+### Get Plan Location
+
+```
+Where is your plan located?
+
+A) **File path** - Provide the path to your plan file (e.g., `docs/plan.md`, `PLAN.md`)
+B) **Paste content** - I'll paste the plan content directly
+```
+
+### Read and Analyze Plan
+
+Read the provided plan and identify:
+
+1. **Goal/objective**: Look for headers like "Goal", "Objective", "Overview", "Summary", "Purpose"
+2. **Tasks or user stories**: Look for:
+   - Task lists (checkboxes, numbered items)
+   - User story patterns ("US-XXX", "As a user...")
+   - Requirements sections
+   - Feature lists
+3. **Acceptance criteria**: Look for "Done when", "Success criteria", "Acceptance criteria", "Requirements"
+
+### Provide Guidance if Needed
+
+If the plan is missing key elements or has issues, provide helpful guidance:
+
+```
+I've analyzed your plan. Here's what I found:
+
+✓ Goal: [Detected goal/objective]
+✓ Tasks: Found [X] tasks/stories
+[✓ or ✗] Acceptance criteria: [status]
+
+[If issues found:]
+A few suggestions to make it work better with autonomous execution:
+
+1. **Missing acceptance criteria**: Consider adding "done" definitions for:
+   - [Task without clear completion criteria]
+   - [Another task]
+
+2. **Large tasks to consider splitting** (60% context rule):
+   - "[Task name]" seems complex - consider breaking into smaller pieces
+
+3. **Ambiguous items**:
+   - "[Task name]" - what specifically needs to happen?
+
+Would you like to:
+A) **Proceed as-is** - I'll work with what's here
+B) **Refine together** - Let me help improve the plan first
+```
+
+### If Plan Looks Good
+
+```
+Your plan looks great! I found:
+- Goal: [detected goal]
+- [X] tasks/stories ready for execution
+- Clear acceptance criteria
+
+Ready to proceed with this plan?
+```
+
+### Normalize to Aeon-Loop Format
+
+After user confirms (or chooses to proceed as-is):
+
+1. **Generate task slug** from plan name or goal:
+   ```bash
+   # Convert "Build REST API" → "build-rest-api"
+   TASK_SLUG=$(echo "$PLAN_NAME" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/-\+/-/g' | sed 's/^-\|-$//g')
+   ```
+
+2. **Create planning directory**:
+   ```bash
+   mkdir -p .planning/[task-slug]
+   ```
+
+3. **Save original plan** (preserved for reference):
+   ```bash
+   # Copy/save to .planning/[task-slug]/source-plan.md
+   ```
+
+4. **Create prd.md** with STATE block:
+
+   Extract tasks from the plan and create the normalized format:
+
+   ```markdown
+   # [Plan Name/Goal]
+
+   ## Source
+   This PRD was imported from an existing plan.
+   Original: `.planning/[task-slug]/source-plan.md`
+
+   ## Overview
+   [Goal/objective from the plan]
+
+   ## User Stories / Tasks
+
+   [Original tasks from the plan, preserved]
+
+   <!-- STATE
+   source: imported
+   stories:
+     - id: TASK-001
+       title: "[First task from plan]"
+       passes: false
+       notes: ""
+     - id: TASK-002
+       title: "[Second task from plan]"
+       passes: false
+       notes: ""
+     - id: TASK-003
+       title: "[Third task from plan]"
+       passes: false
+       notes: ""
+   /STATE -->
+   ```
+
+5. **Create task_plan.md** with phases:
+
+   Group related tasks into logical phases:
+
+   ```markdown
+   # Task Plan: [Plan Name]
+
+   ## Goal
+   [One sentence from the plan's objective]
+
+   ## Phases
+
+   - [ ] Phase 1: [Group name] (TASK-001, TASK-002)
+   - [ ] Phase 2: [Group name] (TASK-003, TASK-004)
+   - [ ] Phase 3: Testing & Verification
+
+   <!-- STATE
+   source: imported
+   phases:
+     - id: 1
+       name: "[Phase 1 name]"
+       passes: false
+     - id: 2
+       name: "[Phase 2 name]"
+       passes: false
+     - id: 3
+       name: "Testing & Verification"
+       passes: false
+   /STATE -->
+   ```
+
+### Confirm Import Complete
+
+```
+Plan imported successfully!
+
+Created:
+- .planning/[task-slug]/source-plan.md (your original plan)
+- .planning/[task-slug]/prd.md (normalized with [X] tasks)
+- .planning/[task-slug]/task_plan.md ([Y] phases)
+
+Ready to choose execution mode?
+```
+
+**After Phase 2B completes, skip Phase 3 and proceed directly to Phase 4 (Execution Mode Choice).**
 
 ---
 
@@ -555,23 +804,30 @@ Before proceeding to verification:
 
 When all stories are marked complete AND all tests pass:
 
-### Re-read PRD
+### Re-read Source Document
+
+Read the original source document to verify all requirements:
 
 ```bash
-cat .planning/[task-slug]/prd.md
+# Check if this was an imported plan or generated PRD
+grep -q "source: imported" .planning/[task-slug]/prd.md
+
+# If imported plan, also read the original:
+cat .planning/[task-slug]/source-plan.md  # Original imported plan (if exists)
+cat .planning/[task-slug]/prd.md          # Normalized PRD with STATE block
 ```
 
 ### Verify All Requirements Met
 
-Go through each:
-- User Story - Is it implemented and working?
-- Functional Requirement - Is it satisfied?
+Go through each item from the source document:
+- Task/Story - Is it implemented and working?
+- Requirement - Is it satisfied?
 - Success Criteria - Does it pass?
 
 ### If Something Was Missed
 
 ```
-Reviewing the original PRD, I found some items that may need attention:
+Reviewing the original [PRD/plan], I found some items that may need attention:
 
 - [Missed item 1]
 - [Missed item 2]
@@ -587,10 +843,10 @@ If A: Loop back to Phase 3 (Planning) with missed items only.
 ### If Everything Complete
 
 ```
-All requirements from the original PRD have been implemented!
+All requirements from the original [PRD/plan] have been implemented!
 
 Summary:
-- [X] stories completed
+- [X] stories/tasks completed
 - [X] phases finished
 - All acceptance criteria passing
 
@@ -623,7 +879,8 @@ Next steps you might consider:
 
 ```
 .planning/[task-slug]/
-├── prd.md          # Product Requirements Document
+├── prd.md          # Product Requirements Document (or normalized from imported plan)
+├── source-plan.md  # Original imported plan (only if using existing plan)
 ├── task_plan.md    # Implementation plan with phases
 └── notes.md        # Research and findings
 
