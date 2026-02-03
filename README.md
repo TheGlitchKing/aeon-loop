@@ -29,6 +29,8 @@ Aeon Loop is a Claude Code plugin that enables autonomous, multi-iteration task 
 
 ## Quick Start
 
+### Via Claude Code Marketplace
+
 ```bash
 # Install from marketplace
 /plugin add TheGlitchKing/aeon-loop
@@ -36,6 +38,30 @@ Aeon Loop is a Claude Code plugin that enables autonomous, multi-iteration task 
 # Start any project with one command:
 /aeon-flux
 ```
+
+### Via NPM (Recommended for CLI users!)
+
+```bash
+# Install globally
+npm install -g @theglitchking/aeon-loop
+
+# Run the installer
+aeon-loop install --scope user
+
+# Check status
+aeon-loop status
+
+# Or use npx (no install needed)
+npx @theglitchking/aeon-loop install --scope user
+```
+
+**Available commands:**
+- `aeon-loop install` - Install aeon-loop and bundled aeon-flux
+- `aeon-loop uninstall` - Uninstall the plugins
+- `aeon-loop status` - Check installation status
+- `aeon-loop help` - Show help
+
+**Note:** This package includes both **aeon-loop** and **aeon-flux** bundled together.
 
 That's it. The unified workflow guides you through everything.
 
