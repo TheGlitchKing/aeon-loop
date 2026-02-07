@@ -1,6 +1,6 @@
 {
   "name": "@theglitchking/aeon-loop",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Autonomous task execution with loop engine, orchestrated subagents, context persistence, and intelligent failure recovery. Includes bundled aeon-flux.",
   "type": "commonjs",
   "bin": {

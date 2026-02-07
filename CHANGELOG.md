@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-02-07
+
+### Fixed
+- Fixed PreToolUse hook errors for Read and Grep operations
+  - Changed hook matcher from specific tool list to wildcard "*"
+  - Added tool type filtering in pre-tool-use.sh script
+  - Read-only tools (Read, Grep) now bypass abort checks immediately
+  - State-modifying tools (Bash, Edit, Write, Task, NotebookEdit) still check abort signal correctly
+  - Eliminates spurious "PreToolUse:Read hook error" and "PreToolUse:Grep hook error" messages
+
 ## [1.1.0] - 2026-02-03
 
 ### Added
@@ -59,5 +69,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Claude Code marketplace distribution
 - Bundled aeon-flux for "action over explanation" philosophy
 
+[1.1.1]: https://github.com/TheGlitchKing/aeon-loop/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/TheGlitchKing/aeon-loop/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/TheGlitchKing/aeon-loop/releases/tag/v1.0.0

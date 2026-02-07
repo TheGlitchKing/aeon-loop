@@ -15,7 +15,7 @@
 
     "PreToolUse": [
       {
-        "matcher": "Bash|Edit|Write|Task|NotebookEdit",
+        "matcher": "*",
         "hooks": [
           {
             "type": "command",

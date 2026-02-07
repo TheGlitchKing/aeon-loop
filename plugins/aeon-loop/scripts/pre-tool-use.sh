@@ -9,6 +9,23 @@ exec 2>/dev/null
 # Read input (ignore if empty/missing)
 read -r INPUT || INPUT=""
 
+# Only check abort for state-modifying tools
+TOOL_NAME=""
+if command -v jq &>/dev/null && [ -n "$INPUT" ]; then
+    TOOL_NAME=$(echo "$INPUT" | jq -r '.tool // empty' 2>/dev/null) || TOOL_NAME=""
+fi
+
+case "$TOOL_NAME" in
+    Bash|Edit|Write|Task|NotebookEdit)
+        # Continue with abort check for state-modifying tools
+        ;;
+    *)
+        # Read-only tool, allow without checking
+        printf '{"decision":"allow"}\n'
+        exit 0
+        ;;
+esac
+
 # Try to get project directory from input
 CWD=""
 if command -v jq &>/dev/null && [ -n "$INPUT" ]; then
