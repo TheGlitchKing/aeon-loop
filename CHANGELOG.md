@@ -1,5 +1,66 @@
 # Changelog
 
+## [2.0.0] — 2026-04-19
+
+### Breaking changes
+
+- **Package is now ESM** (`"type": "module"`). The CLI is rewritten
+  using commander.
+- **Node >= 20** (was >= 16).
+- **Hand-rolled `install|uninstall|status` subcommands removed.** They
+  now print a migration pointer and exit 0 so existing automation
+  doesn't silently break. Use the Claude Code plugin marketplace or
+  npm install instead.
+- `marketplace.json` relocated from repo root to
+  `.claude-plugin/marketplace.json` to match the Claude Code plugin
+  convention (semantic-pages, persistent-planning, etc.).
+
+### Migration
+
+```bash
+# Remove v1 (if installed)
+#   rm -rf ~/.claude/plugins/aeon-loop
+#   rm -rf ~/.claude/plugins/aeon-flux
+
+# Install v2 via the marketplace
+/plugin marketplace add TheGlitchKing/aeon-loop
+/plugin install aeon-loop@aeon-loop-marketplace
+
+# Or at the project level
+npm install --save-dev @theglitchking/aeon-loop
+```
+
+### Added
+
+- Adopts `@theglitchking/claude-plugin-runtime@^0.1.0` for standardized
+  update-policy management across all Glitch Kingdom plugins.
+- **Postinstall** (`scripts/link-skills.js`) writes a default
+  `.claude/aeon-loop.json` (updatePolicy: nudge) and registers a
+  SessionStart update-check hook in `.claude/settings.json` for
+  npm-install users (with plugin-vs-npm dedup).
+- **Slash + CLI subcommands:**
+  - `/aeon-loop:update` / `aeon-loop update`
+  - `/aeon-loop:policy [auto|nudge|off]` / `aeon-loop policy`
+  - `/aeon-loop:status` / `aeon-loop status`
+  - `/aeon-loop:relink` / `aeon-loop relink`
+
+The marketplace install path is unchanged — `plugins/aeon-loop/` is
+still the plugin source directory, and its existing SessionStart /
+PreToolUse / PreCompact / PostToolUse / Stop hooks are unmodified.
+The new runtime SessionStart hook is only registered when the plugin
+is installed as an npm dependency (i.e., when users don't also have
+the marketplace version enabled in `~/.claude/settings.json`).
+
+### Env-var opt-outs
+
+| Variable | Effect |
+|---|---|
+| `AEON_LOOP_UPDATE_POLICY` | One-shot policy override |
+| `AEON_LOOP_SKIP_LINK=1` | (no-op — this plugin ships no top-level skills) |
+| `AEON_LOOP_SKIP_HOOK_REGISTER=1` | Skip writing the SessionStart hook into `.claude/settings.json` |
+
+---
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),

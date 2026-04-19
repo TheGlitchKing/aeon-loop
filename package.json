@@ -1,42 +1,42 @@
 {
   "name": "@theglitchking/aeon-loop",
-  "version": "1.1.1",
+  "version": "2.0.0",
   "description": "Autonomous task execution with loop engine, orchestrated subagents, context persistence, and intelligent failure recovery. Includes bundled aeon-flux.",
-  "type": "commonjs",
+  "type": "module",
   "bin": {
     "aeon-loop": "./bin/aeon-loop.js"
   },
   "scripts": {
-    "postinstall": "node postinstall.js",
-    "prepublishOnly": "bash scripts/validate-version.sh"
+    "postinstall": "node scripts/link-skills.js"
   },
   "files": [
     "bin/",
+    "commands/",
+    "hooks/",
     "plugins/",
     "examples/",
-    "postinstall.js",
+    "scripts/link-skills.js",
     ".claude-plugin/",
-    "marketplace.json",
     "README.md",
     "LICENSE",
     "CHANGELOG.md"
   ],
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=20.0.0"
   },
   "publishConfig": {
     "access": "public"
   },
   "keywords": [
     "claude-code",
+    "plugin",
     "autonomous",
     "loop",
     "task-execution",
     "orchestration",
     "aeon-flux",
     "context-persistence",
-    "subagents",
-    "plugin"
+    "subagents"
   ],
   "author": {
     "name": "TheGlitchKing",
@@ -51,5 +51,8 @@
     "url": "https://github.com/TheGlitchKing/aeon-loop/issues"
   },
   "homepage": "https://github.com/TheGlitchKing/aeon-loop#readme",
-  "bundledDependencies": ["aeon-flux"]
+  "dependencies": {
+    "@theglitchking/claude-plugin-runtime": "^0.1.0",
+    "commander": "^14.0.0"
+  }
 }

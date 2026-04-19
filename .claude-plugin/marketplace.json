@@ -11,7 +11,7 @@
     {
       "name": "aeon-loop",
       "description": "Autonomous loop engine with orchestrated subagents, DAG-based task execution, context persistence across iterations, and intelligent failure recovery with circuit breaker",
-      "version": "1.1.1",
+      "version": "2.0.0",
       "author": {
         "name": "TheGlitchKing",
         "email": "theglitchking@users.noreply.github.com"

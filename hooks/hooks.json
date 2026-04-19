@@ -1,0 +1,15 @@
+{
+  "description": "aeon-loop update-check hook (npm install path). Marketplace plugin install uses plugins/aeon-loop/hooks/hooks.json.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.js\""
+          }
+        ]
+      }
+    ]
+  }
+}
