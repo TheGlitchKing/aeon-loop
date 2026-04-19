@@ -29,41 +29,41 @@ Aeon Loop is a Claude Code plugin that enables autonomous, multi-iteration task 
 
 ## Quick Start
 
-### Via Claude Code Marketplace
+> **v1 → v2 breaking change**: the hand-rolled `aeon-loop install --scope user` flow was removed. Installation is now handled automatically by either the Claude Code plugin marketplace or npm's postinstall. See [CHANGELOG.md](./CHANGELOG.md) for migration details.
 
-```bash
-# Install from marketplace
-/plugin add TheGlitchKing/aeon-loop
+### Option A: Claude Code Plugin Marketplace (Recommended)
 
-# Start any project with one command:
+```
+/plugin marketplace add TheGlitchKing/aeon-loop
+/plugin install aeon-loop@aeon-loop-marketplace
 /aeon-flux
 ```
 
-### Via NPM (Recommended for CLI users!)
+### Option B: Project-level npm install
+
+Pins the version in `package.json`, visible to teammates, CI, and LLMs reading the repo.
 
 ```bash
-# Install globally
-npm install -g @theglitchking/aeon-loop
-
-# Run the installer
-aeon-loop install --scope user
-
-# Check status
-aeon-loop status
-
-# Or use npx (no install needed)
-npx @theglitchking/aeon-loop install --scope user
+npm install --save-dev @theglitchking/aeon-loop
 ```
 
-**Available commands:**
-- `aeon-loop install` - Install aeon-loop and bundled aeon-flux
-- `aeon-loop uninstall` - Uninstall the plugins
-- `aeon-loop status` - Check installation status
-- `aeon-loop help` - Show help
+Postinstall writes `.claude/aeon-loop.json` (update policy: `nudge`) and registers a SessionStart update-check hook in `.claude/settings.json` (skipped if the marketplace plugin is already enabled in `~/.claude/settings.json`).
 
-**Note:** This package includes both **aeon-loop** and **aeon-flux** bundled together.
+### Update management
 
-That's it. The unified workflow guides you through everything.
+Every install ships with an update policy. Default is `nudge` — one-liner notification at session start when a newer version is available, no automatic changes.
+
+```bash
+aeon-loop status          # installed / latest / policy / hook state
+aeon-loop policy auto     # auto-update on session start
+aeon-loop policy nudge    # one-liner nudge only (default)
+aeon-loop policy off      # silent
+aeon-loop update          # update now
+```
+
+Slash-command parity: `/aeon-loop:status`, `/aeon-loop:policy <mode>`, `/aeon-loop:update`, `/aeon-loop:relink`.
+
+**Note:** This package includes both **aeon-loop** and **aeon-flux** bundled together. The unified workflow guides you through everything.
 
 ## The Workflow
 
